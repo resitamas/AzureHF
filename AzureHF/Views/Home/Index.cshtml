@@ -1,3 +1,113 @@
-﻿@{
+﻿@model AzureHF.Models.Tree.Node
+
+@{
     ViewBag.Title = "Home Page";
 }
+
+@section scripts
+{
+    <script type="text/javascript">
+
+        $('#jstree').jstree();
+        $("#selectable").selectable();
+
+        //$('#jstree').jstree({
+        //    "core": {
+        //        "animation": 0,
+        //        "check_callback": true,
+        //        "themes": { "stripes": true }//,
+        //        //'data': {
+        //        //    'url': function (node) {
+        //        //        return node.id === '#' ?
+        //        //          'ajax_demo_roots.json' : 'ajax_demo_children.json';
+        //        //    },
+        //        //    'data': function (node) {
+        //        //        return { 'id': node.id };
+        //        //    }
+        //        //}
+        //    },
+        //    "types": {
+        //        "#": {
+        //            "max_children": 1,
+        //            "max_depth": 4,
+        //            "valid_children": ["root"]
+        //        },
+        //        "root": {
+        //            "icon": "/static/3.3.3/assets/images/tree_icon.png",
+        //            "valid_children": ["default"]
+        //        },
+        //        "default": {
+        //            "valid_children": ["default", "file"]
+        //        },
+        //        "file": {
+        //            "icon": "glyphicon glyphicon-file",
+        //            "valid_children": []
+        //        }
+        //    },
+        //    "plugins": [
+        //      "contextmenu", "dnd", "search",
+        //      "state", "types"
+        //    ]
+        //});
+
+    </script>
+
+}
+
+
+<div style="width: 35%; float:left; margin-top:20px ">
+    
+    <div style="display:inline-block">
+        <button style="float:left" >Create</button>
+        <button style="float:left" >Delete</button>
+    </div>
+    
+    <div id="jstree" style="display:block">
+
+        <ul>
+
+            <li>
+                @Model.Name
+                <ul>
+                    @foreach (var node in Model.Nodes)
+                    {
+                        <li>
+
+                        </li>
+                    }
+                </ul>
+            </li>
+
+            @*<li>
+                Root node 1
+                <ul>
+                    <li>Child node 1</li>
+                    <li><a href="#">Child node 2</a></li>
+                </ul>
+            </li>*@
+
+        </ul>
+    </div>
+</div>
+
+<div style="width: 65%; height:100%; float:right; margin-top:20px; ">
+
+    <div style="display:inline-block">
+        <button style="float:left">Upload</button>
+        <button style="float:left">Download</button>
+        <button style="float:left">Delete</button>
+    </div>
+
+    <div style="display:block; border-left: 2px solid black">
+        <ol id="selectable">
+            <li class="ui-widget-content">Item 1</li>
+            <li class="ui-widget-content">Item 2</li>
+            <li class="ui-widget-content">Item 3</li>
+            <li class="ui-widget-content">Item 4</li>
+            <li class="ui-widget-content">Item 5</li>
+            <li class="ui-widget-content">Item 6</li>
+            <li class="ui-widget-content">Item 7</li>
+        </ol>
+    </div>
+</div>
+

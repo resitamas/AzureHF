@@ -26,6 +26,22 @@ namespace AzureHF
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new StyleBundle("~/Content/jstree").IncludeDirectory(
+                     "~/Content/jsTree", "*.css",true
+                     ));
+
+            bundles.Add(new ScriptBundle("~/bundles/jstree").IncludeDirectory(
+                     "~/Scripts/jsTree3","*.js",true
+                     ));
+
+            bundles.Add(new StyleBundle("~/Content/jqueryui").IncludeDirectory(
+                     "~/Content/Themes", "*.css", true
+                     ));
+
+            bundles.Add(new ScriptBundle("~/bundles/jqueryui").Include(
+                     "~/Scripts/jquery-ui-{version}.js"
+                     ));
         }
     }
 }

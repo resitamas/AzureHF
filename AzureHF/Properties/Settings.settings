@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AzureHF.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="DocumentDBURI" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">https://azurehf.documents.azure.com:443/</Value>
+    </Setting>
+    <Setting Name="DocumentDBPrimaryKey" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">BwbkrowsNYMHckNMLrExnk2WS2cha52143MJ0vC0xSkGuEbtYAHiM04F99jFnXZJ15fHphWBNPNJA1rn2F31UA==</Value>
+    </Setting>
+    <Setting Name="DocumenDBDatabaseName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">azurehf</Value>
+    </Setting>
+    <Setting Name="DocumentDBCollectionName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">hierarchy</Value>
+    </Setting>
+    <Setting Name="HierarchyDocument" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">tree</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
