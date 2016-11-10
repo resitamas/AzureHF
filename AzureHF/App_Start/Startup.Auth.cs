@@ -31,7 +31,7 @@ namespace AzureHF
         public void ConfigureAuth(IAppBuilder app)
         {
             ApplicationDbContext db = new ApplicationDbContext();
-
+            
             app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions());
@@ -42,7 +42,7 @@ namespace AzureHF
                     ClientId = clientId,
                     Authority = Authority,
                     PostLogoutRedirectUri = postLogoutRedirectUri,
-
+                    
                     Notifications = new OpenIdConnectAuthenticationNotifications()
                     {
                         // If there is a code in the OpenID Connect response, redeem it for an access token and refresh token, and store those away.
@@ -57,8 +57,18 @@ namespace AzureHF
 
                            return Task.FromResult(0);
                        }
-                    }
+                    },
+
+                    TokenValidationParameters = new System.IdentityModel.Tokens.TokenValidationParameters
+                    {
+                        // we inject our own multitenant validation logic
+                        ValidateIssuer = true,
+                        // map the claimsPrincipal's roles to the roles claim
+                        RoleClaimType = "roles",
+                    },
+
                 });
+
         }
     }
 }

@@ -7,19 +7,16 @@ using System.Web.Mvc;
 
 namespace AzureHF.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
+        [Authorize]
         public ActionResult Index()
         {
-
-            Claim groupClaim = ClaimsPrincipal.Current.Claims.FirstOrDefault(
-                c => c.Type == "groups");// &&
-                //c.Value.Equals(GetGroupIdByName(Group), StringComparison.CurrentCultureIgnoreCase));
 
             return View();
         }
 
+        [AzureADAuthorizedAttribute(Role = Authorization.Role.Reader)]
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page.";
@@ -27,6 +24,7 @@ namespace AzureHF.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Reader")]
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
