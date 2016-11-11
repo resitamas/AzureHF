@@ -1,4 +1,5 @@
-﻿using AzureHF.Properties;
+﻿using AzureHF.Models.Tree;
+using AzureHF.Properties;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using System;
@@ -13,13 +14,27 @@ namespace AzureHF.DocumentDB
     public class DocumentDBManager
     {
 
-        public async Task<Document> CreateOrReplaceDocumentAsync(string databaseName, string collectionName, string document)
+        private static Root rootNode = new Root
+        {
+            RootNode = new Node()
+            {
+                Name = "Root",
+                Nodes = null
+            },
+            Id = Settings.Default.HierarchyDocument
+        };
+
+        public async Task<Document> CreateOrReplaceDocumentAsync(string databaseName, string collectionName)
         {
             using (var client = new DocumentClient(new Uri(Settings.Default.DocumentDBURI), Settings.Default.DocumentDBPrimaryKey))
             {
                 try
                 {
-                    return  await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), document);
+                   
+                    ResourceResponse<Document> response = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), rootNode);
+                    DocumentCollection col = new DocumentCollection();
+                    
+                    return response.Resource;
 
                     //await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, family.Id));
                 }
@@ -27,12 +42,19 @@ namespace AzureHF.DocumentDB
                 {
                     if (de.StatusCode == HttpStatusCode.Conflict)
                     {
-                        return await client.ReplaceDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), document);
+
+                        ResourceResponse<Document> response = await client.ReplaceDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), rootNode);
+
+                        return response.Resource;
                     }
                     else
                     {
                         throw de;
                     }
+                }
+                catch (Exception e)
+                {
+                    throw e;
                 }
             }
         }
@@ -44,15 +66,20 @@ namespace AzureHF.DocumentDB
 
                 try
                 {
-                    return await client.ReadDocumentAsync(documentLink);
+
+                    ResourceResponse<Document> response = await client.ReadDocumentAsync(documentLink);
+
+                    return response.Resource;
                 }
                 catch (DocumentClientException de)
                 {
                     if (de.StatusCode == HttpStatusCode.NotFound)
                     {
-                        return await CreateOrReplaceDocumentAsync(Settings.Default.DocumenDBDatabaseName,
-                            Settings.Default.DocumentDBCollectionName,
-                            Settings.Default.HierarchyDocument);
+
+                        Document response = await CreateOrReplaceDocumentAsync(Settings.Default.DocumenDBDatabaseName,
+                            Settings.Default.DocumentDBCollectionName);
+
+                        return response;
                     }
                     throw;
                 }

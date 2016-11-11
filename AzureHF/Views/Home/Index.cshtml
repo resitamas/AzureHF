@@ -1,4 +1,5 @@
 ﻿@model AzureHF.Models.Tree.Node
+@using AzureHF.Helpers
 
 @{
     ViewBag.Title = "Home Page";
@@ -50,43 +51,62 @@
         //    ]
         //});
 
+        var modal = document.getElementById('myModal');
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("createBtn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        $(function validateForm(event) {
+            document.getElementById('hiddenField').value = $(".jstree-clicked").first().text();
+        });
+
     </script>
 
 }
 
 
 <div style="width: 35%; float:left; margin-top:20px ">
-    
+
     <div style="display:inline-block">
-        <button style="float:left" >Create</button>
-        <button style="float:left" >Delete</button>
+        <button id="createBtn" style="float:left">Create</button>
+        <button style="float:left">Delete</button>
     </div>
-    
+
     <div id="jstree" style="display:block">
 
-        <ul>
+        @Html.CreateTree(Model)
 
-            <li>
-                @Model.Name
-                <ul>
-                    @foreach (var node in Model.Nodes)
-                    {
-                        <li>
+        @*<ul>
 
-                        </li>
-                    }
-                </ul>
-            </li>
+                <li>
+                    Root node 1
+                    <ul>
+                        <li>Child node 1</li>
+                        <li><a href="#">Child node 2</a></li>
+                    </ul>
+                </li>
 
-            @*<li>
-                Root node 1
-                <ul>
-                    <li>Child node 1</li>
-                    <li><a href="#">Child node 2</a></li>
-                </ul>
-            </li>*@
-
-        </ul>
+            </ul>*@
     </div>
 </div>
 
@@ -111,3 +131,32 @@
     </div>
 </div>
 
+@using (Html.BeginForm("AddDirectory", "Home", FormMethod.Post, new { onsubmit = "validateForm(event)" }))
+{
+
+    <fieldset>
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+
+            <input type="hidden" id="hiddenField" name="parent" value="kkk"/>
+
+            <!-- Modal content -->
+            <div class="modal-content" style="width: 40%">
+
+                <div class="modal-header" >
+                    <span class="close">×</span>
+                    <h2 style="color:#d9e3cb">Mappa hozzáadása</h2>
+                </div>
+                <div class="modal-body">
+                    <span>Mappa neve:</span>
+                    <input type="text" name="name" />
+                </div>
+                <div class="modal-footer">
+                    @*<h3>Modal Footer</h3>*@
+                    <button type="submit">Add directory</button>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+}

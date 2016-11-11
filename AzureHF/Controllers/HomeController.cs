@@ -15,7 +15,7 @@ namespace AzureHF.Controllers
 {
     public class HomeController : Controller
     {
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult> Index()
         {
 
@@ -23,7 +23,15 @@ namespace AzureHF.Controllers
 
             Document doc = await documenDBManager.GetDocumentAsync("/dbs/" + Settings.Default.DocumenDBDatabaseName + "/colls/" + Settings.Default.DocumentDBCollectionName + "/docs/" + Settings.Default.HierarchyDocument);
 
-            Node root = doc.GetPropertyValue<Node>("root");
+
+            Node root = doc.GetPropertyValue<Node>("Root");
+
+            Session["Node"] = root;
+
+            //root.Nodes = new List<Node>();
+            //root.Nodes.Add(new Node() { Name = "Child1" });
+            //root.Nodes.Add(new Node() { Name = "Child2", Nodes = new List<Node>() { new Node() { Name = "GrandChild1"} } });
+            //root.Nodes.Add(new Node() { Name = "Child3" });
 
             return View(root);
         }
@@ -43,5 +51,18 @@ namespace AzureHF.Controllers
 
         //    return View();
         //}
+
+        [HttpPost]
+        public ActionResult AddDirectory(string name, string parent)
+        {
+
+            if (parent == "")
+                return RedirectToAction("Index");
+
+
+            return RedirectToAction("Index");
+        }
+
     }
+
 }
