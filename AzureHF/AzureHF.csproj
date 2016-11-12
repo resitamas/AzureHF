@@ -196,6 +196,7 @@
     <Compile Include="Controllers\jsTree3Controller.cs" />
     <Compile Include="Controllers\UserProfileController.cs" />
     <Compile Include="DocumentDB\DocumentDBManager.cs" />
+    <Compile Include="DocumentDB\HiResDateTime.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

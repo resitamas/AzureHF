@@ -19,13 +19,20 @@ namespace AzureHF.DocumentDB
             RootNode = new Node()
             {
                 Name = "Root",
-                Nodes = null
+                Nodes = null,
+                NodeId = HiResDateTime.UtcNowTicks.ToString()
             },
             Id = Settings.Default.HierarchyDocument
         };
 
-        public async Task<Document> CreateOrReplaceDocumentAsync(string databaseName, string collectionName)
+        public async Task<Document> CreateOrReplaceDocumentAsync(string databaseName, string collectionName, Node root = null)
         {
+
+            if (root != null)
+            {
+                rootNode.RootNode = root;
+            }
+
             using (var client = new DocumentClient(new Uri(Settings.Default.DocumentDBURI), Settings.Default.DocumentDBPrimaryKey))
             {
                 try
@@ -35,15 +42,14 @@ namespace AzureHF.DocumentDB
                     DocumentCollection col = new DocumentCollection();
                     
                     return response.Resource;
-
-                    //await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, family.Id));
                 }
                 catch (DocumentClientException de)
                 {
                     if (de.StatusCode == HttpStatusCode.Conflict)
                     {
-
-                        ResourceResponse<Document> response = await client.ReplaceDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), rootNode);
+                        string documentLink = "/dbs/" + Settings.Default.DocumenDBDatabaseName + "/colls/" + Settings.Default.DocumentDBCollectionName + "/docs/" + Settings.Default.HierarchyDocument;
+                        //ResourceResponse<Document> response = await client.ReplaceDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), rootNode);
+                        ResourceResponse<Document> response = await client.ReplaceDocumentAsync(documentLink,rootNode);
 
                         return response.Resource;
                     }

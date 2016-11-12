@@ -15,25 +15,34 @@ namespace AzureHF.Controllers
 {
     public class HomeController : Controller
     {
+
+        public static Node node;
+
         //[Authorize]
         public async Task<ActionResult> Index()
         {
 
-            var documenDBManager = new DocumentDBManager();
+            if (node == null)
+            {
+                var documenDBManager = new DocumentDBManager();
 
-            Document doc = await documenDBManager.GetDocumentAsync("/dbs/" + Settings.Default.DocumenDBDatabaseName + "/colls/" + Settings.Default.DocumentDBCollectionName + "/docs/" + Settings.Default.HierarchyDocument);
+                Document doc = await documenDBManager.GetDocumentAsync("/dbs/" + Settings.Default.DocumenDBDatabaseName + "/colls/" + Settings.Default.DocumentDBCollectionName + "/docs/" + Settings.Default.HierarchyDocument);
 
-
-            Node root = doc.GetPropertyValue<Node>("Root");
-
-            Session["Node"] = root;
+                Node root = doc.GetPropertyValue<Node>("Root");
+                node = root;
+                ViewData["Node"] = root;
+            }
+            else
+            {
+                ViewData["Node"] = node;
+            }
 
             //root.Nodes = new List<Node>();
             //root.Nodes.Add(new Node() { Name = "Child1" });
             //root.Nodes.Add(new Node() { Name = "Child2", Nodes = new List<Node>() { new Node() { Name = "GrandChild1"} } });
             //root.Nodes.Add(new Node() { Name = "Child3" });
 
-            return View(root);
+            return View(ViewData["Node"]);
         }
 
         //[AzureADAuthorizedAttribute(Role = Authorization.Role.Reader)]
@@ -53,16 +62,62 @@ namespace AzureHF.Controllers
         //}
 
         [HttpPost]
-        public ActionResult AddDirectory(string name, string parent)
+        public async Task<ActionResult> AddDirectory(string name, string parent)
         {
 
             if (parent == "")
                 return RedirectToAction("Index");
 
 
+            Node root = AddNode(name,parent);
+
+
+            var documenDBManager = new DocumentDBManager();
+
+            Document doc = await documenDBManager.CreateOrReplaceDocumentAsync(Settings.Default.DocumenDBDatabaseName,
+                            Settings.Default.DocumentDBCollectionName,root);
+
+
+            node = root;
+
             return RedirectToAction("Index");
         }
 
+        private Node AddNode(string name, string parent)
+        {
+
+            Node root = node;
+
+            ChechId(parent, root).Nodes.Add(new Node() { Name = name, Nodes = null, NodeId = HiResDateTime.UtcNowTicks.ToString()});
+
+            return root;
+
+        }
+
+        private Node ChechId(string parent, Node node)
+        {
+            
+            if (node.NodeId == parent)
+            {
+                if (node.Nodes == null)
+                {
+                    node.Nodes = new List<Node>();
+                }
+
+                return node;
+            }
+
+            if (node.Nodes != null)
+            {
+                foreach (var n in node.Nodes)
+                {
+                    return ChechId(n.NodeId, n);
+                }
+            }
+
+            return null;
+
+        }
     }
 
 }
