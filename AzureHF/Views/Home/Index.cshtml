@@ -76,8 +76,14 @@
             }
         }
 
-        function validateForm(event) {
-            document.getElementById('hiddenFieldId').value = $(".jstree-clicked").parent().attr("data-nodeid");
+        function getNodeIdCreate(event) {
+            document.getElementById('hiddenFieldIdCreate').value = $(".jstree-clicked").parent().attr("data-nodeid");
+
+        };
+
+        function getNodeIdDelete(event) {
+            document.getElementById('hiddenFieldIdDelete').value = $(".jstree-clicked").parent().attr("data-nodeid");
+            document.getElementById('hiddenFieldIdParentDelete').value = $(".jstree-clicked").closest("li").parents("li").attr("data-nodeid");
         };
 
     </script>
@@ -89,7 +95,18 @@
 
     <div style="display:inline-block">
         <button id="createBtn" style="float:left; margin-right: 5px">Create</button>
-        <button style="float:left">Delete</button>
+        <div style="float:left">
+            @using (Html.BeginForm("DeleteDirectory", "Home", FormMethod.Post, new { onsubmit = "return getNodeIdDelete(event);" }))
+            {
+                @Html.HttpMethodOverride(HttpVerbs.Delete)
+
+                <input type="hidden" id="hiddenFieldIdDelete" name="nodeId" value="kkk" />
+                <input type="hidden" id="hiddenFieldIdParentDelete" name="parentNodeId" value="kkk" />
+
+                <button type="submit">Delete</button>
+
+            }
+        </div>
     </div>
 
     <div id="jstree" style="display:block">
@@ -120,14 +137,14 @@
     </div>
 </div>
 
-@using (Html.BeginForm("AddDirectory", "Home", FormMethod.Post, new { onsubmit = "return validateForm(event);" }))
+@using (Html.BeginForm("AddDirectory", "Home", FormMethod.Post, new { onsubmit = "return getNodeIdCreate(event);" }))
 {
 
     <fieldset>
         <!-- The Modal -->
         <div id="myModal" class="modal">
 
-            <input type="hidden" id="hiddenFieldId" name="parent" value="kkk" />
+            <input type="hidden" id="hiddenFieldIdCreate" name="parentNodeId" value="kkk" />
 
             <!-- Modal content -->
             <div class="modal-content" style="width: 40%">

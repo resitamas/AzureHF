@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using AzureHF.Helpers;
 
 namespace AzureHF.Controllers
 {
@@ -62,14 +63,14 @@ namespace AzureHF.Controllers
         //}
 
         [HttpPost]
-        public async Task<ActionResult> AddDirectory(string name, string parent)
+        public async Task<ActionResult> AddDirectory(string name, string parentNodeId)
         {
 
-            if (parent == "")
+            if (parentNodeId == "")
                 return RedirectToAction("Index");
 
 
-            Node root = AddNode(name,parent);
+            Node root = AddNode(name,parentNodeId);
 
 
             var documenDBManager = new DocumentDBManager();
@@ -83,40 +84,55 @@ namespace AzureHF.Controllers
             return RedirectToAction("Index");
         }
 
+
+        [HttpDelete]
+        public async Task<ActionResult> DeleteDirectory(string nodeId, string parentNodeId)
+        {
+
+            if (nodeId == "" || parentNodeId == "" || nodeId == "undwefined" || parentNodeId == "undefined")
+            {
+                return RedirectToAction("Index");
+            }
+
+
+            Node root = DeleteNode(nodeId, parentNodeId);
+
+
+            var documenDBManager = new DocumentDBManager();
+
+            Document doc = await documenDBManager.CreateOrReplaceDocumentAsync(Settings.Default.DocumenDBDatabaseName,
+                            Settings.Default.DocumentDBCollectionName, root);
+
+
+            node = root;
+
+            return RedirectToAction("Index");
+        }
+
+        private Node DeleteNode(string nodeId, string parentNodeId)
+        {
+
+            Node root = node;
+
+            root.Descendants().Where(n => n.NodeId == parentNodeId).First().SafeNodes.RemoveByNodeId(nodeId);
+
+            //List<Node> nodes = CheckId(nodeId, root).Nodes;
+
+            //nodes.Remove(nodes.Find(n => n.NodeId == nodeId));
+
+            return root;
+        }
+
         private Node AddNode(string name, string parent)
         {
 
             Node root = node;
 
-            ChechId(parent, root).Nodes.Add(new Node() { Name = name, Nodes = null, NodeId = HiResDateTime.UtcNowTicks.ToString()});
+            Node newNode = new Node() { Name = name, Nodes = null, NodeId = HiResDateTime.UtcNowTicks.ToString() };
+
+            root.Descendants().Where(n => n.NodeId == parent).First().SafeNodes.Add(newNode);
 
             return root;
-
-        }
-
-        private Node ChechId(string parent, Node node)
-        {
-            
-            if (node.NodeId == parent)
-            {
-                if (node.Nodes == null)
-                {
-                    node.Nodes = new List<Node>();
-                }
-
-                return node;
-            }
-
-            if (node.Nodes != null)
-            {
-                foreach (var n in node.Nodes)
-                {
-                    return ChechId(n.NodeId, n);
-                }
-            }
-
-            return null;
-
         }
     }
 
