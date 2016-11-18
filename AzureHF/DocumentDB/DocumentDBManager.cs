@@ -1,4 +1,6 @@
-﻿using AzureHF.Models.Tree;
+﻿using AzureHF.BlobStorage;
+using AzureHF.Models.Index;
+using AzureHF.Models.Tree;
 using AzureHF.Properties;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -39,7 +41,6 @@ namespace AzureHF.DocumentDB
                 {
                    
                     ResourceResponse<Document> response = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), rootNode);
-                    DocumentCollection col = new DocumentCollection();
                     
                     return response.Resource;
                 }
@@ -94,6 +95,60 @@ namespace AzureHF.DocumentDB
         }
 
 
+        public List<BlobModel> GetBlobsByNodeId(string databaseName, string collectionName, string nodeId)
+        {
+            using (var client = new DocumentClient(new Uri(Settings.Default.DocumentDBURI), Settings.Default.DocumentDBPrimaryKey))
+            {
 
+                BlobDocument blobDocument;
+
+                try
+                {
+
+                    Uri collUri = UriFactory.CreateDocumentCollectionUri(Settings.Default.DocumenDBDatabaseName, Settings.Default.DocumentDBCollectionName);
+
+                    blobDocument = client.CreateDocumentQuery<BlobDocument>(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName)).Where(b => b.NodeId == nodeId).ToList().First();
+
+                    return blobDocument.Blobs;
+                }
+                catch (InvalidOperationException)
+                {
+                    return new List<BlobModel>();
+                }
+            }
+        }
+
+        public async Task<Document> AddBlobDocumentAsync(string databaseName, string collectionName, string nodeId, BlobModel newBlob)
+        {
+            using (var client = new DocumentClient(new Uri(Settings.Default.DocumentDBURI), Settings.Default.DocumentDBPrimaryKey))
+            {
+
+                BlobDocument blobDocument;
+
+                try
+                {
+
+                    Uri collUri = UriFactory.CreateDocumentCollectionUri(Settings.Default.DocumenDBDatabaseName, Settings.Default.DocumentDBCollectionName);
+
+                    blobDocument = client.CreateDocumentQuery<BlobDocument>(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName)).Where(b => b.NodeId == nodeId).ToList().First();
+
+                    blobDocument.Blobs.Add(newBlob);
+
+                    var response = await client.UpsertDocumentAsync(collUri, blobDocument);
+
+                    return response.Resource;
+                }
+                catch (InvalidOperationException)
+                {
+
+                        blobDocument = new BlobDocument() { NodeId = nodeId, Blobs = new List<BlobModel>() { newBlob } };
+
+                        var response1 = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), blobDocument);
+
+                        return response1.Resource;
+                }
+                
+            }
+        }
     }
 }

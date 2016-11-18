@@ -70,6 +70,10 @@
       <HintPath>..\packages\Microsoft.Data.Services.Client.5.6.4\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.3.2.3\lib\net40\Microsoft.WindowsAzure.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.WindowsAzure.Storage, Version=7.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAzure.Storage.7.2.1\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
       <Private>True</Private>
@@ -191,6 +195,8 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Authorization\AzureADAuthorizedAttribute.cs" />
     <Compile Include="Authorization\Role.cs" />
+    <Compile Include="BlobStorage\BlobDocument.cs" />
+    <Compile Include="BlobStorage\BlobManager.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\jsTree3Controller.cs" />
@@ -203,6 +209,8 @@
     <Compile Include="Helpers\TreeHelper.cs" />
     <Compile Include="Models\AdalTokenCache.cs" />
     <Compile Include="Models\ApplicationDbContext.cs" />
+    <Compile Include="Models\Index\BlobModel.cs" />
+    <Compile Include="Models\Index\IndexModel.cs" />
     <Compile Include="Models\jsTree3Node.cs" />
     <Compile Include="Models\Tree\Node.cs" />
     <Compile Include="Models\Tree\Root.cs" />

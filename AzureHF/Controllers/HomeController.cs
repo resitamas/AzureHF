@@ -11,39 +11,54 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using AzureHF.Helpers;
+using AzureHF.Models.Index;
+using AzureHF.BlobStorage;
 
 namespace AzureHF.Controllers
 {
     public class HomeController : Controller
     {
 
-        public static Node node;
+        public static Node root;
+        public static Dictionary<string, List<BlobModel>> blobs; 
+
 
         //[Authorize]
         public async Task<ActionResult> Index()
         {
 
-            if (node == null)
+            if (root == null)
             {
+                //GetTreeNodes
                 var documenDBManager = new DocumentDBManager();
 
                 Document doc = await documenDBManager.GetDocumentAsync("/dbs/" + Settings.Default.DocumenDBDatabaseName + "/colls/" + Settings.Default.DocumentDBCollectionName + "/docs/" + Settings.Default.HierarchyDocument);
 
-                Node root = doc.GetPropertyValue<Node>("Root");
-                node = root;
-                ViewData["Node"] = root;
+                root = doc.GetPropertyValue<Node>("Root");
+
             }
-            else
+            blobs = null;
+            if (blobs == null)
             {
-                ViewData["Node"] = node;
+                //GetBlobs
+                //var blobManager = new BlobManager();
+                var documenDBManager = new DocumentDBManager();
+
+                blobs = new Dictionary<string, List<BlobModel>>();
+                IEnumerable<Node> nodes = root.Descendants();
+                foreach (var node in nodes)
+                {
+                    //blobs.Add(node.NodeId,blobManager.GetBlobInformation(node.Name));
+                    blobs.Add(node.NodeId, documenDBManager.GetBlobsByNodeId(Settings.Default.DocumenDBDatabaseName,
+                            Settings.Default.DocumentDBCollectionName,node.NodeId));
+                }
             }
 
-            //root.Nodes = new List<Node>();
-            //root.Nodes.Add(new Node() { Name = "Child1" });
-            //root.Nodes.Add(new Node() { Name = "Child2", Nodes = new List<Node>() { new Node() { Name = "GrandChild1"} } });
-            //root.Nodes.Add(new Node() { Name = "Child3" });
+            IndexModel model = new IndexModel();
+            model.Root = root;
+            model.Blobs = blobs;
 
-            return View(ViewData["Node"]);
+            return View(model);
         }
 
         //[AzureADAuthorizedAttribute(Role = Authorization.Role.Reader)]
@@ -79,7 +94,7 @@ namespace AzureHF.Controllers
                             Settings.Default.DocumentDBCollectionName,root);
 
 
-            node = root;
+            HomeController.root = root;
 
             return RedirectToAction("Index");
         }
@@ -104,29 +119,60 @@ namespace AzureHF.Controllers
                             Settings.Default.DocumentDBCollectionName, root);
 
 
-            node = root;
+            HomeController.root = root;
+
+            return RedirectToAction("Index");
+        }
+       
+        [HttpPost]
+        public async Task<ActionResult> UploadFile(HttpPostedFileBase file, string nodeId)
+        {
+
+            var containerNode = root.Descendants().Where(n => n.NodeId == nodeId).First();
+            var virtualContainer = containerNode.Name + "_(" + containerNode.NodeId + ")" +"/";
+            var collectionName = Settings.Default.DocumentDBCollectionName + "/" + virtualContainer + file.FileName;
+            var blobModel = new BlobModel() { DisplayName = file.FileName, Path = collectionName};
+
+            //UploadBlob
+            var blobManager = new BlobManager();
+            blobManager.UploadBlob(file, virtualContainer);
+
+            //Update documentDB
+            var documentDBManager = new DocumentDBManager();
+
+            await documentDBManager.AddBlobDocumentAsync(Settings.Default.DocumenDBDatabaseName, Settings.Default.DocumentDBCollectionName, nodeId, blobModel);
+
+            //Add blobname to list
+            List<BlobModel> blobList;
+
+            if (blobs.TryGetValue(nodeId, out blobList))
+            {
+                blobList.Add(blobModel);
+            }
+            else
+            {
+                blobList = new List<BlobModel>();
+                blobList.Add(blobModel);
+            }
+
+            blobs[nodeId] = blobList;
+
+
 
             return RedirectToAction("Index");
         }
 
+
         private Node DeleteNode(string nodeId, string parentNodeId)
         {
 
-            Node root = node;
-
             root.Descendants().Where(n => n.NodeId == parentNodeId).First().SafeNodes.RemoveByNodeId(nodeId);
-
-            //List<Node> nodes = CheckId(nodeId, root).Nodes;
-
-            //nodes.Remove(nodes.Find(n => n.NodeId == nodeId));
 
             return root;
         }
 
         private Node AddNode(string name, string parent)
         {
-
-            Node root = node;
 
             Node newNode = new Node() { Name = name, Nodes = null, NodeId = HiResDateTime.UtcNowTicks.ToString() };
 
