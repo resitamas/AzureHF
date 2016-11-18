@@ -15,27 +15,40 @@
 
         $(function () {
             localStorage.setItem("blobs", JSON.stringify(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Blobs))));
+            $('#downloadButton').attr("data-link", "");
         })
 
         $('#jstree').on('changed.jstree', function (e, data) {
 
             o = data.instance.get_node(data.selected[0], true).attr("data-nodeid");
 
-            //var i, j;
-            //for (i = 0, j = data.selected.length; i < j; i++) {
-
-            //    o = data.instance.get_node(data.selected[0],true);
-
-            //    alert(data.instance.get_node(data.selected[i]));
-            //    //r.push(data.instance.get_node(data.selected[i]));
-            //}
-
-            //alert(r.join(', '));
-
             updateList(o);
 
         }).jstree();
-        $("#selectable").selectable();
+
+
+        $("#selectable").selectable({
+            selected: function (event, ui) {
+
+                var path = $(ui.selected).attr("data-path");
+
+                if ($('#downloadButton').attr("data-link") == "") {
+
+                    $('#downloadButton').attr("data-link", $('#downloadButton').attr("href"));
+                    $('#downloadButton').attr("data-link", $('#downloadButton').attr("data-link").replace("docname", path));
+
+                    
+                } else
+                {
+                    $('#downloadButton').attr("data-link", $('#downloadButton').attr("data-link").replace(localStorage.getItem("lastSelected"), path));
+                }
+
+                $('#downloadButton').attr("href", $('#downloadButton').attr("data-link"));
+                localStorage.setItem("lastSelected", path);
+
+            }
+
+        });
 
 
         function updateList(id) {
@@ -46,11 +59,13 @@
 
             for (var i in blobs) {
 
-                html += "<li class='ui-widget-content'>" + blobs[i]["DisplayName"] + "</li>";
+                html += "<li class='ui-widget-content' data-path='"+ blobs[i]['Path'] +"'>";
+                html += blobs[i]["DisplayName"]
+                html += "</li>";
+
             }
 
             $("#selectable").html(html);
-
 
         }
 
@@ -81,7 +96,7 @@
 
         function getNodeIdCreate(event) {
             document.getElementById('hiddenFieldIdCreate').value = $(".jstree-clicked").parent().attr("data-nodeid");
-            
+
         };
 
         function getNodeIdUpload(event) {
@@ -131,26 +146,28 @@
             @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = "return getNodeIdUpload(event);" }))
             {
                 <input type="hidden" id="hiddenFieldIdUpload" name="nodeId" value="kkk" />
-                <input type="submit" value="Upload" style="float:left; margin-right: 5px"/>
-                <input id="files" type="file"  name="file"  />
+                <input type="submit" value="Upload" style="float:left; margin-right: 5px" />
+                <input id="files" type="file" name="file" />
             }
         </div>
         <div style="float:right; margin-right: 5px">
-            @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { }))
-            {
-                <input type="button" title="Download" style="float:left; margin-right: 5px" value="Download" />
-            }
+            
+            @Html.ActionLink("Download", "DownloadFile", new { name = "docname"}, new { @id="downloadButton", @class="classname", @style = "float:left; margin-right: 5px"})
+
         </div>
         <div style="float:right; margin-right: 5px">
-            @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { }))
+
+            @Html.ActionLink("Delete", "DeleteFile", new { name = "docname" }, new { @id = "downloadButton", @class = "classname", @style = "float:left;" })
+            
+            @*@using (Html.BeginForm("DeleteFile", "Home", FormMethod.Get, new { }))
             {
-                <input type="button" title="Delete" style="float:left" value="Delete" />
-            }
+                <input type="submit" title="Delete" style="float:left" value="Delete" />
+            }*@
         </div>
     </div>
 
     <div style="display:block; border-left: 2px solid black">
-        <ol id="selectable">
+        <ol id="selectable" onchange="selectionChanged(this)">
 
             @{
                 List<BlobModel> blobModel;

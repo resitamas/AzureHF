@@ -41,6 +41,21 @@ namespace AzureHF.BlobStorage
         }
 
 
+        public CloudBlockBlob GetBlob(string name)
+        {
+            
+            return container.GetBlockBlobReference(name);
+        }
+
+
+        public void DeleteBlob(string name)
+        {
+            CloudBlockBlob blob = GetBlob(name);
+
+            blob.Delete();
+        }
+
+
         public List<BlobModel> GetBlobInformation(string virtualDirectory)
         {
             var model = new List<BlobModel>();

@@ -26,7 +26,7 @@ namespace AzureHF.Controllers
         //[Authorize]
         public async Task<ActionResult> Index()
         {
-
+            root = null;
             if (root == null)
             {
                 //GetTreeNodes
@@ -130,7 +130,7 @@ namespace AzureHF.Controllers
 
             var containerNode = root.Descendants().Where(n => n.NodeId == nodeId).First();
             var virtualContainer = containerNode.Name + "_(" + containerNode.NodeId + ")" +"/";
-            var collectionName = Settings.Default.DocumentDBCollectionName + "/" + virtualContainer + file.FileName;
+            var collectionName = virtualContainer + file.FileName;
             var blobModel = new BlobModel() { DisplayName = file.FileName, Path = collectionName};
 
             //UploadBlob
@@ -180,6 +180,47 @@ namespace AzureHF.Controllers
 
             return root;
         }
+
+
+        public ActionResult DownloadFile(string name)
+        {
+
+            BlobManager blobManager = new BlobManager();
+
+            Response.AddHeader("Content-Disposition", "attachment; filename=" + name); 
+
+            blobManager.GetBlob(name).DownloadToStream(Response.OutputStream);
+
+            return new EmptyResult();
+        }
+
+        
+
+        public async Task<ActionResult> DeleteFile(string nodeId, string name)
+        {
+            //Delete Blob
+            BlobManager blobManager = new BlobManager();
+
+            blobManager.DeleteBlob(name);
+
+
+            //Delete from documentDB
+            DocumentDBManager documentDB = new DocumentDBManager();
+            await documentDB.RemoveBlobDocumentAsync(Settings.Default.DocumenDBDatabaseName, Settings.Default.DocumentDBCollectionName, nodeId, name);
+
+            //Delet from list
+            List<BlobModel> blobList;
+
+            if (blobs.TryGetValue(nodeId, out blobList))
+            {
+                int index = blobList.FindIndex(b => b.Path == name);
+                blobList.RemoveAt(index);
+                blobs[nodeId] = blobList;
+            }
+
+            return RedirectToAction("Index");
+        }
+
     }
 
 }

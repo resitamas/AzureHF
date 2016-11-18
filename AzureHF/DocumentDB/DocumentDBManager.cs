@@ -150,5 +150,36 @@ namespace AzureHF.DocumentDB
                 
             }
         }
+
+
+        public async Task<Document> RemoveBlobDocumentAsync(string databaseName, string collectionName, string nodeId, string path)
+        {
+            using (var client = new DocumentClient(new Uri(Settings.Default.DocumentDBURI), Settings.Default.DocumentDBPrimaryKey))
+            {
+
+                BlobDocument blobDocument;
+
+                try
+                {
+
+                    Uri collUri = UriFactory.CreateDocumentCollectionUri(Settings.Default.DocumenDBDatabaseName, Settings.Default.DocumentDBCollectionName);
+
+                    blobDocument = client.CreateDocumentQuery<BlobDocument>(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName)).Where(b => b.NodeId == nodeId).ToList().First();
+
+                    int index = blobDocument.Blobs.FindIndex(b => b.Path == path);
+
+                    blobDocument.Blobs.RemoveAt(index);
+
+                    var response = await client.UpsertDocumentAsync(collUri, blobDocument);
+
+                    return response.Resource;
+                }
+                catch (InvalidOperationException)
+                {
+                    throw;
+                }
+
+            }
+        }
     }
 }
