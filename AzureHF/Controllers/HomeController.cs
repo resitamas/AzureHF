@@ -20,10 +20,10 @@ namespace AzureHF.Controllers
     {
 
         public static Node root;
-        public static Dictionary<string, List<BlobModel>> blobs; 
+        public static Dictionary<string, List<BlobModel>> blobs;
 
 
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult> Index()
         {
             root = null;

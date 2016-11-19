@@ -70,6 +70,10 @@
       <HintPath>..\packages\Microsoft.Data.Services.Client.5.6.4\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.ServiceBus, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzure.ServiceBus.3.4.2\lib\net45-full\Microsoft.ServiceBus.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.WindowsAzure.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.3.2.3\lib\net40\Microsoft.WindowsAzure.Configuration.dll</HintPath>
       <Private>True</Private>
@@ -87,6 +91,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Spatial, Version=5.6.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Spatial.5.6.4\lib\net40\System.Spatial.dll</HintPath>
       <Private>True</Private>
@@ -189,24 +194,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Code\ServiceBus\ServiceBusManager.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
-    <Compile Include="Authorization\AzureADAuthorizedAttribute.cs" />
-    <Compile Include="Authorization\Role.cs" />
-    <Compile Include="BlobStorage\BlobDocument.cs" />
-    <Compile Include="BlobStorage\BlobManager.cs" />
+    <Compile Include="App_Code\Authorization\AzureADAuthorizedAttribute.cs" />
+    <Compile Include="App_Code\Authorization\Role.cs" />
+    <Compile Include="App_Code\BlobStorage\BlobDocument.cs" />
+    <Compile Include="App_Code\BlobStorage\BlobManager.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\jsTree3Controller.cs" />
     <Compile Include="Controllers\UserProfileController.cs" />
-    <Compile Include="DocumentDB\DocumentDBManager.cs" />
-    <Compile Include="DocumentDB\HiResDateTime.cs" />
+    <Compile Include="App_Code\DocumentDB\DocumentDBManager.cs" />
+    <Compile Include="App_Code\DocumentDB\HiResDateTime.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\TreeHelper.cs" />
+    <Compile Include="App_Code\Helpers\TreeHelper.cs" />
     <Compile Include="Models\AdalTokenCache.cs" />
     <Compile Include="Models\ApplicationDbContext.cs" />
     <Compile Include="Models\Index\BlobModel.cs" />
@@ -284,7 +290,7 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Scripts\jquery-1.12.4.intellisense.js" />

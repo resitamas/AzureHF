@@ -70,7 +70,7 @@ namespace AzureHF.BlobStorage
                 return model;
 
             }
-            catch (Exception e)
+            catch (Exception )
             {
 
                 return model;

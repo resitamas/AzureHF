@@ -15,6 +15,6 @@ namespace AzureHF.Models.Index
         [JsonProperty("DisplayName")]
         public string DisplayName { get; set; }
 
-
+        
     }
 }

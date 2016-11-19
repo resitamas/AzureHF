@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OpenIdConnect;
 using Microsoft.Owin.Security;
+using Microsoft.ServiceBus.Messaging;
 
 namespace AzureHF.Controllers
 {
@@ -16,7 +17,9 @@ namespace AzureHF.Controllers
             // Send an OpenID Connect sign-in request.
             if (!Request.IsAuthenticated)
             {
-                HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/" },
+                string callbackUrl = Url.Action("SignInCallback", "Account", routeValues: null, protocol: Request.Url.Scheme);
+
+                HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = callbackUrl },
                     OpenIdConnectAuthenticationDefaults.AuthenticationType);
             }
         }
@@ -34,11 +37,38 @@ namespace AzureHF.Controllers
         {
             if (Request.IsAuthenticated)
             {
+
+                SendMessage("Signed out:" + User.Identity.Name);
+
                 // Redirect to home page if the user is authenticated.
                 return RedirectToAction("Index", "Home");
             }
 
             return View();
         }
+
+        public ActionResult SignInCallback()
+        {
+            if (Request.IsAuthenticated)
+            {
+
+                SendMessage("Signed in: " + User.Identity.Name);
+
+                // Redirect to home page if the user is authenticated.
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
+        private void SendMessage(string msg)
+        {
+            QueueClient client = QueueClient.CreateFromConnectionString("Endpoint=sb://azurehf.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=8C4K/YMT6YPmsyJRp4e1IvRtDhIzcr0EMgi53ATSXf8=", "authlog");
+            using (var bm = new BrokeredMessage(msg))
+            {
+                client.Send(bm);
+            }
+        }
+
     }
 }
