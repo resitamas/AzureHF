@@ -195,7 +195,7 @@ namespace AzureHF.Controllers
         }
 
         
-
+        [HttpDelete]
         public async Task<ActionResult> DeleteFile(string nodeId, string name)
         {
             //Delete Blob

@@ -23,6 +23,7 @@
             o = data.instance.get_node(data.selected[0], true).attr("data-nodeid");
 
             updateList(o);
+            document.getElementById('hiddenDeleteNodeId').value = o;
 
         }).jstree();
 
@@ -44,6 +45,7 @@
                 }
 
                 $('#downloadButton').attr("href", $('#downloadButton').attr("data-link"));
+                document.getElementById('hiddenDeleteName').value = path;
                 localStorage.setItem("lastSelected", path);
 
             }
@@ -157,12 +159,15 @@
         </div>
         <div style="float:right; margin-right: 5px">
 
-            @Html.ActionLink("Delete", "DeleteFile", new { name = "docname" }, new { @id = "downloadButton", @class = "classname", @style = "float:left;" })
+            @*@Html.ActionLink("Delete", "DeleteFile", new { name = "docname" }, new { @id = "downloadButton", @class = "classname", @style = "float:left;" })*@
             
-            @*@using (Html.BeginForm("DeleteFile", "Home", FormMethod.Get, new { }))
+            @using (Html.BeginForm("DeleteFile", "Home"))
             {
+                @Html.HttpMethodOverride(HttpVerbs.Delete)
+                <input type="hidden" id="hiddenDeleteName" name="name" value="kkk" />
+                <input type="hidden" id="hiddenDeleteNodeId" name="nodeId" value="kkk" />
                 <input type="submit" title="Delete" style="float:left" value="Delete" />
-            }*@
+            }
         </div>
     </div>
 
