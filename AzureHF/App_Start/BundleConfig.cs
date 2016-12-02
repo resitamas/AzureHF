@@ -23,19 +23,23 @@ namespace AzureHF
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
-            bundles.Add(new StyleBundle("~/Content/css").Include(
+            bundles.Add(new StyleBundle("~/bundles/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/site.css"));
 
-            bundles.Add(new StyleBundle("~/Content/jstree").IncludeDirectory(
-                     "~/Content/jsTree", "*.css",true
+            bundles.Add(new StyleBundle("~/bundles/jsTreeCSS").IncludeDirectory(
+                     "~/Content/jsTree", "*.css", true
                      ));
 
-            bundles.Add(new ScriptBundle("~/bundles/jstree").IncludeDirectory(
+            //bundles.Add(new StyleBundle("~/bundles/jsTreeCSS").Include(
+            //         "~/Content/jsTree/themes/default/*.css"
+            //         ));
+
+            bundles.Add(new ScriptBundle("~/bundles/jstreeJS").IncludeDirectory(
                      "~/Scripts/jsTree3","*.js",true
                      ));
 
-            bundles.Add(new StyleBundle("~/Content/jqueryui").IncludeDirectory(
+            bundles.Add(new StyleBundle("~/bundles/jqueryuiCSS").IncludeDirectory(
                      "~/Content/Themes", "*.css", true
                      ));
 

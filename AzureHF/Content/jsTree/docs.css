@@ -1,4 +1,4 @@
-html { overflow-y:scroll; background:#D9E3CB url('./images/tree.png') left bottom fixed no-repeat; }
+html { overflow-y:scroll; background:#D9E3CB left bottom fixed no-repeat; }
 body { background:transparent; line-height:1.6em; }
 .list-group-item-text { line-height:1.6em; }
 .container { min-width:320px; max-width:960px; }

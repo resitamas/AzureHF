@@ -1,6 +1,6 @@
 ﻿@model IndexModel
 
-@using AzureHF.Helpers
+@using AzureHF.App_Code.Helpers
 @using AzureHF.Models.Index
 
 @{
@@ -136,7 +136,9 @@
 
     <div id="jstree" style="display:block">
 
+        @*@Html.CreateTree(Model.Root)*@
         @Html.CreateTree(Model.Root)
+
 
     </div>
 </div>

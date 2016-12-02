@@ -10,7 +10,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using AzureHF.Helpers;
+using AzureHF.App_Code.Helpers;
 using AzureHF.Models.Index;
 using AzureHF.BlobStorage;
 
