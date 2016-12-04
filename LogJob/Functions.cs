@@ -10,11 +10,11 @@ namespace LogJob
 {
     public class Functions
     {
-        // This function will get triggered/executed when a new message is written 
-        // on an Azure Queue called queue.
-        public static void ProcessQueueMessage([QueueTrigger("queue")] string message, TextWriter log)
+        
+        public static void ProcessQueueMessage([ServiceBusTrigger("authlog")] string message, TextWriter logger)
         {
-            log.WriteLine(message);
+            logger.WriteLine(message);
+            Console.WriteLine(message);
         }
     }
 }

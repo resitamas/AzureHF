@@ -13,6 +13,7 @@ using System.Web.Mvc;
 using AzureHF.App_Code.Helpers;
 using AzureHF.Models.Index;
 using AzureHF.BlobStorage;
+using AzureHF.ServiceBus;
 
 namespace AzureHF.Controllers
 {
@@ -21,7 +22,6 @@ namespace AzureHF.Controllers
 
         public static Node root;
         public static Dictionary<string, List<BlobModel>> blobs;
-
 
         [Authorize]
         public async Task<ActionResult> Index()
@@ -96,6 +96,11 @@ namespace AzureHF.Controllers
 
             HomeController.root = root;
 
+
+            string parentName = root.Descendants().Where(n => n.NodeId == parentNodeId).First().Name;
+            ServiceBusManager.Log("Subdirectory named " + name + " added to "+ parentName +" directory by " + User.Identity.Name);
+
+
             return RedirectToAction("Index");
         }
 
@@ -104,22 +109,36 @@ namespace AzureHF.Controllers
         public async Task<ActionResult> DeleteDirectory(string nodeId, string parentNodeId)
         {
 
-            if (nodeId == "" || parentNodeId == "" || nodeId == "undwefined" || parentNodeId == "undefined")
+            if (nodeId == "" || parentNodeId == "" || nodeId == "undefined" || parentNodeId == "undefined")
             {
                 return RedirectToAction("Index");
             }
 
+            try
+            {
+                var nodes = root.Descendants();
 
-            Node root = DeleteNode(nodeId, parentNodeId);
+                string name = nodes.Where(n => n.NodeId == nodeId).First().Name;
+                string parentName = nodes.Where(n => n.NodeId == parentNodeId).First().Name;
 
+                Node root1 = DeleteNode(nodeId, parentNodeId);
 
-            var documenDBManager = new DocumentDBManager();
+                var documenDBManager = new DocumentDBManager();
 
-            Document doc = await documenDBManager.CreateOrReplaceDocumentAsync(Settings.Default.DocumenDBDatabaseName,
-                            Settings.Default.DocumentDBCollectionName, root);
+                Document doc = await documenDBManager.CreateOrReplaceDocumentAsync(Settings.Default.DocumenDBDatabaseName,
+                                Settings.Default.DocumentDBCollectionName, root1);
 
-
-            HomeController.root = root;
+                root = root1;
+                
+                ServiceBusManager.Log("Subdirectory named " + name + " removed from " + parentName + " directory by " + User.Identity.Name);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message != "Cannot delete")
+                {
+                    throw;
+                }
+            }
 
             return RedirectToAction("Index");
         }
@@ -157,14 +176,17 @@ namespace AzureHF.Controllers
 
             blobs[nodeId] = blobList;
 
-
-
             return RedirectToAction("Index");
         }
 
 
         private Node DeleteNode(string nodeId, string parentNodeId)
         {
+
+            if (root.Descendants().Where(n => n.NodeId == nodeId).First().SafeNodes.Count != 0)
+            {
+                throw new Exception("Cannot delete");
+            }
 
             root.Descendants().Where(n => n.NodeId == parentNodeId).First().SafeNodes.RemoveByNodeId(nodeId);
 

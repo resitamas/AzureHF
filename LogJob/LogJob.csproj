@@ -104,6 +104,8 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\azurehf - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\azurehf - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\azurehw - Web Deploy.pubxml" />
     <None Include="Properties\webjob-publish-settings.json" />
   </ItemGroup>

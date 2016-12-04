@@ -9,22 +9,18 @@ using System.IO;
 namespace LogJob
 {
     // To learn more about Microsoft Azure WebJobs SDK, please see http://go.microsoft.com/fwlink/?LinkID=320976
-    class Program
+    public class Program
     {
         // Please set the following connection strings in app.config for this WebJob to run:
         // AzureWebJobsDashboard and AzureWebJobsStorage
-        static void Main()
+        public static void Main()
         {
 
-            var host = new JobHost();
+            JobHostConfiguration config = new JobHostConfiguration();
+            config.UseServiceBus();
+            var host = new JobHost(config);
             // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
-        }
-
-
-        public static void ProcessQueueMessage([ServiceBusTrigger("auttlog")] string message, TextWriter logger)
-        {
-            logger.WriteLine(message);
         }
 
     }

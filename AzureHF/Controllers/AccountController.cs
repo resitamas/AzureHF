@@ -21,6 +21,7 @@ namespace AzureHF.Controllers
 
                 HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = callbackUrl },
                     OpenIdConnectAuthenticationDefaults.AuthenticationType);
+
             }
         }
 
@@ -31,6 +32,8 @@ namespace AzureHF.Controllers
             HttpContext.GetOwinContext().Authentication.SignOut(
                 new AuthenticationProperties { RedirectUri = callbackUrl },
                 OpenIdConnectAuthenticationDefaults.AuthenticationType, CookieAuthenticationDefaults.AuthenticationType);
+
+
         }
 
         public ActionResult SignOutCallback()
@@ -38,11 +41,10 @@ namespace AzureHF.Controllers
             if (Request.IsAuthenticated)
             {
 
-                SendMessage("Signed out:" + User.Identity.Name);
-
                 // Redirect to home page if the user is authenticated.
                 return RedirectToAction("Index", "Home");
             }
+
 
             return View();
         }
@@ -52,8 +54,6 @@ namespace AzureHF.Controllers
             if (Request.IsAuthenticated)
             {
 
-                SendMessage("Signed in: " + User.Identity.Name);
-
                 // Redirect to home page if the user is authenticated.
                 return RedirectToAction("Index", "Home");
             }
@@ -61,14 +61,7 @@ namespace AzureHF.Controllers
             return View();
         }
 
-        private void SendMessage(string msg)
-        {
-            QueueClient client = QueueClient.CreateFromConnectionString("Endpoint=sb://azurehf.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=8C4K/YMT6YPmsyJRp4e1IvRtDhIzcr0EMgi53ATSXf8=", "authlog");
-            using (var bm = new BrokeredMessage(msg))
-            {
-                client.Send(bm);
-            }
-        }
+        
 
     }
 }
