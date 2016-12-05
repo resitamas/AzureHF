@@ -57,27 +57,30 @@ namespace AzureHF.Controllers
             IndexModel model = new IndexModel();
             model.Root = root;
             model.Blobs = blobs;
+            
 
             return View(model);
         }
 
         //[AzureADAuthorizedAttribute(Role = Authorization.Role.Reader)]
-        //public ActionResult About()
-        //{
-        //    ViewBag.Message = "Your application description page.";
+        [Authorize(Roles = "Write")]
+        public ActionResult About()
+        {
+            ViewBag.Message = "Your application description page.";
 
-        //    return View();
-        //}
+            return View();
+        }
 
-        //[Authorize(Roles = "Reader")]
-        //public ActionResult Contact()
-        //{
-        //    ViewBag.Message = "Your contact page.";
+        [Authorize(Roles = "Read")]
+        public ActionResult Contact()
+        {
+            ViewBag.Message = "Your contact page.";
 
-        //    return View();
-        //}
+            return View();
+        }
 
         [HttpPost]
+        [Authorize(Roles = "Administrator")]
         public async Task<ActionResult> AddDirectory(string name, string parentNodeId)
         {
 
@@ -106,6 +109,7 @@ namespace AzureHF.Controllers
 
 
         [HttpDelete]
+        [Authorize(Roles = "Administrator")]
         public async Task<ActionResult> DeleteDirectory(string nodeId, string parentNodeId)
         {
 
@@ -144,6 +148,7 @@ namespace AzureHF.Controllers
         }
        
         [HttpPost]
+        [Authorize(Roles = "Administrator, Write")]
         public async Task<ActionResult> UploadFile(HttpPostedFileBase file, string nodeId)
         {
 
@@ -203,7 +208,7 @@ namespace AzureHF.Controllers
             return root;
         }
 
-
+        [Authorize]
         public ActionResult DownloadFile(string name)
         {
 
@@ -218,6 +223,7 @@ namespace AzureHF.Controllers
 
         
         [HttpDelete]
+        [Authorize(Roles = "Administrator, Write")]
         public async Task<ActionResult> DeleteFile(string nodeId, string name)
         {
             //Delete Blob

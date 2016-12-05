@@ -199,8 +199,8 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
-    <Compile Include="App_Code\Authorization\AzureADAuthorizedAttribute.cs" />
-    <Compile Include="App_Code\Authorization\Role.cs" />
+    <Compile Include="Authorization\AzureADAuthorizedAttribute.cs" />
+    <Compile Include="Authorization\Role.cs" />
     <Compile Include="App_Code\BlobStorage\BlobDocument.cs" />
     <Compile Include="App_Code\BlobStorage\BlobManager.cs" />
     <Compile Include="Controllers\AccountController.cs" />

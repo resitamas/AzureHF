@@ -1,4 +1,5 @@
-﻿using AzureHF.Models.Tree;
+﻿using AzureHF.Authorization;
+using AzureHF.Models.Tree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace AzureHF.Models.Index
         public Node Root { get; set; }
 
         public Dictionary<string,List<BlobModel>> Blobs { get; set; }
+
+        public Role Role { get; set; }
 
     }
 }

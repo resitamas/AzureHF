@@ -38,9 +38,8 @@
                     $('#downloadButton').attr("data-link", $('#downloadButton').attr("href"));
                     $('#downloadButton').attr("data-link", $('#downloadButton').attr("data-link").replace("docname", path));
 
-                    
-                } else
-                {
+
+                } else {
                     $('#downloadButton').attr("data-link", $('#downloadButton').attr("data-link").replace(localStorage.getItem("lastSelected"), path));
                 }
 
@@ -61,7 +60,7 @@
 
             for (var i in blobs) {
 
-                html += "<li class='ui-widget-content' data-path='"+ blobs[i]['Path'] +"'>";
+                html += "<li class='ui-widget-content' data-path='" + blobs[i]['Path'] + "'>";
                 html += blobs[i]["DisplayName"]
                 html += "</li>";
 
@@ -73,26 +72,29 @@
 
         var modal = document.getElementById('myModal');
 
+
         // Get the button that opens the modal
         var btn = document.getElementById("createBtn");
 
-        // Get the <span> element that closes the modal
-        var span = document.getElementsByClassName("close")[0];
+        if (btn != null) {
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
 
-        // When the user clicks the button, open the modal
-        btn.onclick = function () {
-            modal.style.display = "block";
-        }
+            // When the user clicks the button, open the modal
+            btn.onclick = function () {
+                modal.style.display = "block";
+            }
 
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function () {
-            modal.style.display = "none";
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
-            if (event.target == modal) {
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function () {
                 modal.style.display = "none";
+            }
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
             }
         }
 
@@ -118,59 +120,76 @@
 
 <div style="width: 35%; float:left; margin-top:20px ">
 
-    <div style="display:inline-block">
-        <button id="createBtn" style="float:left; margin-right: 5px" class="btn btn-info">Create</button>
-        <div style="float:left">
-            @using (Html.BeginForm("DeleteDirectory", "Home", FormMethod.Post, new { onsubmit = "return getNodeIdDelete(event);" }))
-            {
-                @Html.HttpMethodOverride(HttpVerbs.Delete)
+    @if (User.IsInRole(AzureHF.Authorization.Role.Admin))
+    {
+        <div style="display:inline-block">
+            <button id="createBtn" style="float:left; margin-right: 5px" class="btn btn-info">Create</button>
+            <div style="float:left">
 
-                <input type="hidden" id="hiddenFieldIdDelete" name="nodeId" value="kkk" />
-                <input type="hidden" id="hiddenFieldIdParentDelete" name="parentNodeId" value="kkk" />
 
-                <button type="submit" class="btn btn-danger">Delete</button>
+                @using (Html.BeginForm("DeleteDirectory", "Home", FormMethod.Post, new { onsubmit = "return getNodeIdDelete(event);" }))
+                {
+                    @Html.HttpMethodOverride(HttpVerbs.Delete)
 
-            }
+                    <input type="hidden" id="hiddenFieldIdDelete" name="nodeId" value="kkk" />
+                    <input type="hidden" id="hiddenFieldIdParentDelete" name="parentNodeId" value="kkk" />
+
+                    <button type="submit" class="btn btn-danger">Delete</button>
+
+                }
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div style="display:inline-block; height: 34px; clear:both">
+        </div>
+    }
+
+
 
     <div id="jstree" style="display:block">
-
-        @*@Html.CreateTree(Model.Root)*@
         @Html.CreateTree(Model.Root)
-
-
     </div>
 </div>
 
 <div style="width: 65%; height:100%; float:right; margin-top:20px; ">
 
     <div style="display:inline-block; width: 100%">
-        <div style="float:left; margin-right: 5px">
-            @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = "return getNodeIdUpload(event);" }))
-            {
-                <input type="hidden" id="hiddenFieldIdUpload" name="nodeId" value="kkk" />
-                <input type="submit" value="Upload" style="float:left; margin-right: 5px" class="btn btn-success"/>
-                <input id="files" type="file" name="file"/>
-            }
-        </div>
+
+        @if (User.IsInRole(AzureHF.Authorization.Role.writer) || User.IsInRole(AzureHF.Authorization.Role.Admin))
+        {
+            <div style="float:left; margin-right: 5px">
+                @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = "return getNodeIdUpload(event);" }))
+                {
+                    <input type="hidden" id="hiddenFieldIdUpload" name="nodeId" value="kkk" />
+                    <input type="submit" value="Upload" style="float:left; margin-right: 5px" class="btn btn-success" />
+                    <input id="files" type="file" name="file" />
+                }
+            </div>
+        }
         <div style="float:right; margin-right: 5px">
-            
-            @Html.ActionLink("Download", "DownloadFile", new { name = "docname"}, new { @id="downloadButton", @class="btn btn-primary", @style = "float:left; margin-right: 5px"})
+
+            @Html.ActionLink("Download", "DownloadFile", new { name = "docname" }, new { @id = "downloadButton", @class = "btn btn-primary", @style = "float:left; margin-right: 5px" })
 
         </div>
-        <div style="float:right; margin-right: 5px">
+        @if (User.IsInRole(AzureHF.Authorization.Role.writer) || User.IsInRole(AzureHF.Authorization.Role.Admin))
+        {
+            <div style="float:right; margin-right: 5px">
 
-            @*@Html.ActionLink("Delete", "DeleteFile", new { name = "docname" }, new { @id = "downloadButton", @class = "classname", @style = "float:left;" })*@
-            
-            @using (Html.BeginForm("DeleteFile", "Home"))
-            {
-                @Html.HttpMethodOverride(HttpVerbs.Delete)
-                <input type="hidden" id="hiddenDeleteName" name="name" value="kkk" />
-                <input type="hidden" id="hiddenDeleteNodeId" name="nodeId" value="kkk" />
-                <input type="submit" title="Delete" style="float:left" value="Delete" class="btn btn-danger" />
-            }
-        </div>
+                @using (Html.BeginForm("DeleteFile", "Home"))
+                {
+                    @Html.HttpMethodOverride(HttpVerbs.Delete)
+
+                    <input type="hidden" id="hiddenDeleteName" name="name" value="kkk" />
+                    <input type="hidden" id="hiddenDeleteNodeId" name="nodeId" value="kkk" />
+
+                    <input type="submit" title="Delete" style="float:left" value="Delete" class="btn btn-danger" />
+                }
+            </div>
+        }
+
+
     </div>
 
     <div style="display:block; border-left: 2px solid black">
